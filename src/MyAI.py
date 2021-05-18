@@ -63,21 +63,23 @@ class MyAI(AI):
 
     def getAction(self, number: int) -> "Action Object":
 
+
+
         return Action(AI.Action.LEAVE)
 
     # returns neighbors' locations
-    def getNeighbors(self, tileLoc: tuple) -> list[tuple]:
+    def getNeighbors(self, tile) -> list:
 
-        cur_row = tileLoc[0]
-        cur_col = tileLoc[1]
+        cur_row = tile.loc[0]
+        cur_col = tile.loc[1]
         row_size = len(self.__tiles)
         col_size = len(self.__tiles[0])
-        neighborsLoc = list()
+        neighbors = list()
 
         if cur_row != None and cur_col != None:
             for r in range(cur_row - 1, cur_row + 2):
                 for c in range(cur_col - 1, cur_col + 2):
                     if -1 < r < row_size and -1 < c < col_size and not (r == cur_row and c == cur_col):
-                        neighborsLoc.append((r, c))
+                        neighbors.append( Tile(tile_loc=(r, c)) )   # Add a tile with the tile location
 
-        return neighborsLoc
+        return neighbors
