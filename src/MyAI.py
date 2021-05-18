@@ -42,8 +42,8 @@ class MyAI(AI):
         self.__tilesLeft = rowDimension * colDimension - 1
         self.__flagsLeft = totalMines
         self.__totalMines = totalMines
-        self.__knownTilesLoc = list()       # Already known tiles
-        self.__safeTileLoc = list()         # List of coordinate locations
+        self.__knownTiles = list()       # Already known tiles
+        self.__safeTiles = list()         # List of coordinate locations
         self.__flaggedTiles = list()
         self.__curX = startX                # X IS COLUMN
         self.__curY = startY                # Y IS ROW
