@@ -62,8 +62,7 @@ class MyAI(AI):
             self.__tiles.append(tileRow)
 
         # The first tile starts at the given position. The tile is safe. It gets a number of 0
-        # X == column / Y == row
-        startTile = Tile(loc=(startX, startY), number=0)
+        startTile = Tile(loc=(startX, startY), number=0, covered=False)
         self.__tiles[startY][startX] = startTile
 
         # The first tile is explored
