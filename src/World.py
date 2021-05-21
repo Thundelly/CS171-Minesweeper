@@ -132,6 +132,7 @@ class World():
 		move = actionObj.getMove()
 		X = actionObj.getX()
 		Y = actionObj.getY()
+		print(move)
 		if move in [AI.Action.LEAVE, AI.Action.UNCOVER, AI.Action.FLAG, AI.Action.UNFLAG]:
 			if self.__isInBounds(X, Y):
 				return True

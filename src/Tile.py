@@ -1,3 +1,5 @@
+
+
 class Tile():
 
     def __init__(self, loc: tuple = (None, None), number: int = None, mine: bool = False, covered: bool = True, flag: bool = False):
@@ -46,7 +48,7 @@ class Tile():
 
     # overload equation operation
     def __eq__(self, other):
-        if (self.loc == other.loc) and (self.number == other.number):
+        if (self.loc == other.loc):
             return True
 
         else:
@@ -54,5 +56,28 @@ class Tile():
 
     # print the tile
     def __repr__(self):
-        return f"{self.loc}{self.covered}"
+        # return f"{self.loc} {1 if self.covered else 0}"
+        return f"{self.loc} {1 if self.covered else 0} {self.number}"
         # return f"Mine: {self.mine}, Covered: {self.covered}, Flag: {self.flag}, Number: {self.number}, Loc: {self.loc}\n"
+
+# ic| tile: (0, 1) 0 0
+# ic| tile: (1, 2) 0 0
+# ic| tile: (2, 3) 0 1
+# ic| tile: (2, 2) 0 1
+# ic| tile: (2, 1) 0 0
+# ic| tile: (3, 2) 0 1
+# ic| tile: (3, 1) 0 0
+# ic| tile: (4, 2) 0 1
+# ic| tile: (4, 1) 0 0
+# ic| tile: (4, 0) 0 0
+# ic| tile: (3, 0) 0 0
+# ic| tile: (2, 0) 0 0
+# ic| tile: (1, 3) 0 0
+# ic| tile: (2, 4) 0 1
+# ic| tile: (1, 4) 0 0
+# ic| tile: (0, 4) 0 0
+# ic| tile: (0, 3) 0 0
+# ic| tile: (1, 1) 0 0
+# ic| tile: (1, 0) 0 0
+# ic| tile: (0, 2) 0 0
+# ic| tile: (0, 0) 0 0
