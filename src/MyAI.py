@@ -73,30 +73,24 @@ class MyAI(AI):
         self.__curTile.setNumber(cur_tile_number)
         self.findSafeTiles(self.__curTile)
 
+        ic(self.__safeTiles)
+
         if self.__safeTiles:
             self.__curTile = self.__safeTiles.pop()
             self.exploreTile(self.__curTile)
-
 
             self.printBoard()
             
             return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
-        else:
-            for tile in self.__exploredTiles:
-                potential_mines = [tile for tile in self.getNeighbors(tile) if tile.isCovered()]
-                # if the current tile's number equals the number of covered tile
-                if tile.getNumber() == len(potential_mines) and tile.getNumber() != 0 and self.__totalMines != 0:
-                    self.__mines.extend(potential_mines)
-
-            if self.__mines:
-                self.__curTile = self.__mines.pop()
-                self.exploreTile(self.__curTile)
-                self.__totalMines -= 1
-
-                return Action(AI.Action.FLAG, self.__curTile.loc[0], self.__curTile.loc[1])
-
         self.printBoard()
+
+        if not self.__safeTiles and not self.__mines:
+            action = AI.Action.UNCOVER
+            x = random.randrange(self.__colDimension)
+            y = random.randrange(self.__rowDimension)
+
+            return Action(action, x, y)
 
         return Action(AI.Action.LEAVE)
 
@@ -119,12 +113,15 @@ class MyAI(AI):
 
     # print the board
     def printBoard(self):
-        ic(self.__tiles)
+        # ic(self.__tiles)
+        pass
 
     def findSafeTiles(self, tile):
-        if self.__totalMines == 0:
-            self.__safeTiles.extend(self.__unexploredTiles)
-            self.__unexploredTiles.clear()
+        # if self.__totalMines == 0:
+        #     self.__safeTiles.extend(self.__unexploredTiles)
+        #     self.__unexploredTiles.clear()
+
+        ic(tile.getNumber())
 
         if tile.getNumber() == 0:
             self.__safeTiles.extend(tile for tile in self.getNeighbors(tile) if tile not in self.__safeTiles and tile not in self.__exploredTiles)
