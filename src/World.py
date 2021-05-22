@@ -323,7 +323,8 @@ class World():
 		board_as_string = ""
 		print("", end=" ")
 		for r in range(self.__rowDimension - 1, -1, -1):
-			print(str(r+1).ljust(2) + '|', end=" ")
+			# print(str(r+1).ljust(2) + '|', end=" ")
+			print(str(r).ljust(2) + '|', end=" ")
 			for c in range(self.__colDimension):
 				self.__printTileInfo(c, r)
 			if (r != 0):
@@ -331,7 +332,8 @@ class World():
 
 		column_label = "     "
 		column_border = "   "
-		for c in range(1, self.__colDimension+1):
+		# for c in range(1, self.__colDimension+1):
+		for c in range(0, self.__colDimension):
 			column_border += "---"
 			column_label += str(c).ljust(3)
 		print(board_as_string)

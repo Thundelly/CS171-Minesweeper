@@ -1,6 +1,6 @@
 class Tile():
 
-    def __init__(self, loc: tuple = (None, None), number: int = None, mine: bool = False, covered: bool = True, flag: bool = False):
+    def __init__(self, loc: tuple = (None, None), number: int = '.', mine: bool = False, covered: bool = True, flag: bool = False):
         self.mine = mine
         self.covered = covered
         self.flag = flag
@@ -54,5 +54,6 @@ class Tile():
 
     # print the tile
     def __repr__(self):
-        return f"{self.loc}{self.covered}"
+        # return f"{self.number}"
+        return f"{self.loc}{self.number}"
         # return f"Mine: {self.mine}, Covered: {self.covered}, Flag: {self.flag}, Number: {self.number}, Loc: {self.loc}\n"
