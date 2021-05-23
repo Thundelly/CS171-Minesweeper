@@ -20,6 +20,7 @@ from Action import Action
 from pprint import pprint
 from icecream import ic
 from Tile import Tile
+from Equation import Equation
 ################# Make sure to put back Tile class here #################
 #########################################################################
 
@@ -110,27 +111,41 @@ class MyAI(AI):
 
                             return Action(AI.Action)
 
-
         #####################################################
         ############### PUT CSP LOGIC IN HERE ###############
         #####################################################
 
+        for tile in self.__exploredTiles:
+            frontier = False
+            neighbors = self.getNeighbors(tile)
+            variables = list()
+            # ic(neighbors)
 
+            for neighbor in neighbors:
+                if neighbor.getNumber() == '.':
+                    frontier = True
+                    variables.append(neighbor)
+
+            if frontier and tile.getNumber() != -1:
+                ic(tile)
+                ic(variables)
 
         ######################################################
         ######################################################
         ######################################################
-        
+
         if self.checkWinningStatus():
             return Action(AI.Action.LEAVE)
         # self.printBoard()
-
 
         # Random move
         if not self.__safeTiles:
             action = AI.Action.UNCOVER
             x = random.randrange(self.__colDimension)
             y = random.randrange(self.__rowDimension)
+
+            self.__curTile = self.__tiles[self.__rowDimension - 1 - y][x]
+            self.exploreTile(self.__curTile)
 
             return Action(action, x, y)
 
@@ -180,7 +195,7 @@ class MyAI(AI):
             for tile in row:
                 if tile.getNumber() == -1:
                     mine_count += 1
-    
+
         return mine_count == self.__totalMines
 
     # print the board
@@ -206,3 +221,37 @@ class MyAI(AI):
 
         except ValueError:
             pass
+
+
+    def runCSP(self, eqs):
+
+        for eq1 in eqs:
+            for eq2 in eqs:
+
+                eq = eq1.compare(eq2)
+
+                if eq not in eqs and eq.variables:
+                    eqs.append(eq)
+
+                if len(eq.variables) == eq.number:
+                    for i in range(len(eq.variables)):
+                        eq_new = Equation([eq.variables[i]], 1)
+                        if eq_new not in eqs and eq_new.variables:
+                            eqs.append(eq_new)
+
+                if len(eq.variables) > 0 and eq.number == 0:
+                    for i in range(len(eq.variables)):
+                        eq_new = Equation([eq.variables[i]], 0)
+                        if eq_new not in eqs and eq_new.variables:
+                            eqs.append(eq_new)
+
+        return eqs
+
+
+    def extractEqs(self, eqs):
+        extracted = list()
+        for eq in eqs:
+            if len(eq.variables) == 1:
+                extracted.append(eq)
+
+        return extracted
