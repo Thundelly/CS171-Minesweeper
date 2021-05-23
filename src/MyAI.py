@@ -17,8 +17,6 @@ from AI import AI
 from Action import Action
 
 #########################################################################
-from pprint import pprint
-from icecream import ic
 from Tile import Tile
 from Equation import Equation
 ################# Make sure to put back Tile class here #################
@@ -38,14 +36,10 @@ class MyAI(AI):
 
         self.__rowDimension = rowDimension
         self.__colDimension = colDimension
-        self.__tilesLeft = rowDimension * colDimension - 1
-        self.__flagsLeft = totalMines
         self.__totalMines = totalMines
         self.__exploredTiles = list()       # Already explored tiles
         self.__unexploredTiles = list()     # Not yet explored
-        self.__safeTiles = list()  # List of coordinate locations
-        self.__mines = list()
-        self.__flaggedTiles = list()
+        self.__safeTiles = list()           # List of coordinate locations
         self.__curTile = Tile()             # Current tile of focus / X IS COLUMN / Y IS ROW
         self.__tiles = list()
 
@@ -73,15 +67,11 @@ class MyAI(AI):
         self.__curTile.setNumber(cur_tile_number)
         self.findSafeTiles(self.__curTile)
 
-        # ic(self.__curTile)
-        # ic(self.__safeTiles)
-
         # Uncover all the safe tiles
         if self.__safeTiles:
             self.__curTile = self.__safeTiles.pop()
             self.exploreTile(self.__curTile)
 
-            # self.printBoard()
             return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
         # No more safe tiles
@@ -91,12 +81,7 @@ class MyAI(AI):
                     covered_tiles = self.getCoveredTiles(tile)
                     flagged_tiles = self.getFlaggedTiles(tile)
 
-                    # ic(tile)
-                    # ic(covered_tiles)
-                    # ic(flagged_tiles)
-
                     if tile.getNumber() == len(covered_tiles) + len(flagged_tiles) and len(covered_tiles) != 0:
-                        # ic(True)
 
                         self.__curTile = covered_tiles.pop()
                         self.exploreTile(self.__curTile)
@@ -104,12 +89,12 @@ class MyAI(AI):
                         return Action(AI.Action.FLAG, self.__curTile.loc[0], self.__curTile.loc[1])
 
                     else:
-                        # ic(False)
 
                         if tile.getNumber() == len(flagged_tiles) and len(covered_tiles) != 0:
                             self.__safeTiles.extend(covered_tiles)
-
-                            return Action(AI.Action)
+                            self.__curTile = self.__safeTiles.pop()
+                            self.exploreTile(self.__curTile)
+                            return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
         #####################################################
         ############### PUT CSP LOGIC IN HERE ###############
@@ -119,16 +104,11 @@ class MyAI(AI):
             frontier = False
             neighbors = self.getNeighbors(tile)
             variables = list()
-            # ic(neighbors)
 
             for neighbor in neighbors:
                 if neighbor.getNumber() == '.':
                     frontier = True
                     variables.append(neighbor)
-
-            if frontier and tile.getNumber() != -1:
-                ic(tile)
-                ic(variables)
 
         ######################################################
         ######################################################
@@ -136,10 +116,10 @@ class MyAI(AI):
 
         if self.checkWinningStatus():
             return Action(AI.Action.LEAVE)
-        # self.printBoard()
 
         # Random move
-        if not self.__safeTiles:
+        if not self.__exploredTiles:
+            print ('random')
             action = AI.Action.UNCOVER
             x = random.randrange(self.__colDimension)
             y = random.randrange(self.__rowDimension)
@@ -197,12 +177,6 @@ class MyAI(AI):
                     mine_count += 1
 
         return mine_count == self.__totalMines
-
-    # print the board
-    def printBoard(self):
-        # ic(self.__tiles)
-        pprint(self.__tiles, width=120)
-        pass
 
     def findSafeTiles(self, tile):
 
