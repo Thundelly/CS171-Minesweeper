@@ -44,6 +44,7 @@ class MyAI(AI):
         self.__exploredTiles = list()       # Already explored tiles
         self.__unexploredTiles = list()     # Not yet explored
         self.__safeTiles = list()  # List of coordinate locations
+        self.__flagTiles = list()
         self.__mines = list()
         self.__flaggedTiles = list()
         self.__curTile = Tile()             # Current tile of focus / X IS COLUMN / Y IS ROW
@@ -84,6 +85,12 @@ class MyAI(AI):
             # self.printBoard()
             return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
+        elif self.__flagTiles:
+            self.__curTile = self.__flagTiles.pop()
+            self.exploreTile(self.__curTile)
+
+            return Action(AI.Action.FLAG, self.__curTile.loc[0], self.__curTile.loc[1])
+
         # No more safe tiles
         else:
             for tile in self.__exploredTiles:
@@ -108,8 +115,10 @@ class MyAI(AI):
 
                         if tile.getNumber() == len(flagged_tiles) and len(covered_tiles) != 0:
                             self.__safeTiles.extend(covered_tiles)
+                            self.__curTile = self.__safeTiles.pop()
+                            self.exploreTile(self.__curTile)
 
-                            return Action(AI.Action)
+                            return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
         #####################################################
         ############### PUT CSP LOGIC IN HERE ###############
@@ -148,7 +157,20 @@ class MyAI(AI):
         # ic(eqs)
 
         extracted = self.extractEqs(eqs)
-        ic(extracted)
+        # ic(extracted)
+
+        for eq in extracted:
+            if eq.number == 1:
+                self.__flagTiles.extend(eq.variables)
+
+            elif eq.number == 0:
+                self.__safeTiles.extend(eq.variables)
+
+        if self.__safeTiles:
+            self.__curTile = self.__safeTiles.pop()
+            self.exploreTile(self.__curTile)
+
+            return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
         ######################################################
         ######################################################
@@ -248,7 +270,6 @@ class MyAI(AI):
             for eq2 in eqs:
 
                 eq = eq1.compare(eq2)
-                
 
                 if eq not in eqs and eq.variables:
                     eqs.append(eq)
