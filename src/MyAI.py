@@ -15,15 +15,89 @@
 import random
 from AI import AI
 from Action import Action
+from collections import Counter
 
-#########################################################################
-from pprint import pprint
-from icecream import ic
-from Tile import Tile
-from Equation import Equation
-################# Make sure to put back Tile class here #################
-#########################################################################
 
+class Tile():
+
+    def __init__(self, loc: tuple = (None, None), number: int = '.', mine: bool = False, covered: bool = True, flag: bool = False):
+        self.mine = mine
+        self.covered = covered
+        self.flag = flag
+        self.number = number
+        # Setting the tile id upon creation
+        self.loc = loc
+
+    def getLoc(self):
+        return self.loc
+    
+    def setLoc(self, loc: tuple):
+        self.loc = loc
+
+    def getNumber(self) -> int:
+        return self.number
+
+    def setNumber(self, num: int):
+        self.number = num
+
+    def isMine(self) -> bool:
+        return self.mine
+    
+    def setMine(self, mine: bool):
+        self.mine = mine
+
+    def isCovered(self) -> bool:
+        return self.covered
+
+    def coverTile(self):
+        self.covered = True
+    
+    def uncoverTile(self):
+        self.covered = False
+
+    def isFlagged(self):
+        return self.flag
+
+    def flagTile(self):
+        self.flag = True
+
+    def unflagTile(self):
+        self.flag = False
+
+    # print the tile
+    def __repr__(self):
+        # return f"{self.number}"
+        return f"{self.loc}{self.number}"
+        # return f"Mine: {self.mine}, Covered: {self.covered}, Flag: {self.flag}, Number: {self.number}, Loc: {self.loc}\n"
+
+class Equation:
+    def __init__(self, variables=list(), number=0):
+        self.variables = variables
+        self.number = number
+
+    def __repr__(self):
+        return f"{self.variables} {self.number}"
+
+    def __eq__(self, other):
+        def compare(x, y): return Counter(x) == Counter(y)
+        if compare(self.variables, other.variables) and self.number == other.number:
+            # if self.variables == other.variables and self.number == other.number:
+            return True
+
+        else:
+            return False
+
+    def compare(self, other_eq):
+        eq = Equation()
+
+        eq1 = self
+        eq2 = other_eq
+
+        if set(eq1.variables).issubset(set(eq2.variables)):
+            eq.variables = list(set(eq2.variables) - set(eq1.variables))
+            eq.number = eq2.number - eq1.number
+
+        return eq
 
 class MyAI(AI):
 
@@ -74,15 +148,11 @@ class MyAI(AI):
         self.__curTile.setNumber(cur_tile_number)
         self.findSafeTiles(self.__curTile)
 
-        # ic(self.__curTile)
-        # ic(self.__safeTiles)
-
         # Uncover all the safe tiles
         if self.__safeTiles:
             self.__curTile = self.__safeTiles.pop()
             self.exploreTile(self.__curTile)
 
-            # self.printBoard()
             return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
         elif self.__flagTiles:
@@ -98,12 +168,7 @@ class MyAI(AI):
                     covered_tiles = self.getCoveredTiles(tile)
                     flagged_tiles = self.getFlaggedTiles(tile)
 
-                    # ic(tile)
-                    # ic(covered_tiles)
-                    # ic(flagged_tiles)
-
                     if tile.getNumber() == len(covered_tiles) + len(flagged_tiles) and len(covered_tiles) != 0:
-                        # ic(True)
 
                         self.__curTile = covered_tiles.pop()
                         self.exploreTile(self.__curTile)
@@ -111,7 +176,6 @@ class MyAI(AI):
                         return Action(AI.Action.FLAG, self.__curTile.loc[0], self.__curTile.loc[1])
 
                     else:
-                        # ic(False)
 
                         if tile.getNumber() == len(flagged_tiles) and len(covered_tiles) != 0:
                             self.__safeTiles.extend(covered_tiles)
@@ -131,7 +195,6 @@ class MyAI(AI):
             flag_count = 0
             neighbors = self.getNeighbors(tile)
             variables = list()
-            # ic(neighbors)
 
             for neighbor in neighbors:
                 if neighbor.getNumber() == '.':
@@ -142,22 +205,11 @@ class MyAI(AI):
                     flag_count += 1
 
             if frontier and tile.getNumber() != -1:
-                # ic(tile)
-                # ic(variables)
-
                 eq = Equation(variables, tile.getNumber() - flag_count)
-
-                # ic(eq)
-
                 eqs.append(eq)
 
-        # ic(eqs)
-
         eqs = self.runCSP(eqs)
-        # ic(eqs)
-
         extracted = self.extractEqs(eqs)
-        # ic(extracted)
 
         for eq in extracted:
             if eq.number == 1:
@@ -178,18 +230,14 @@ class MyAI(AI):
 
         if self.checkWinningStatus():
             return Action(AI.Action.LEAVE)
-        # self.printBoard()
 
         # Random move
         if not self.__safeTiles:
             action = AI.Action.UNCOVER
-            x = random.randrange(self.__colDimension)
-            y = random.randrange(self.__rowDimension)
-
-            self.__curTile = self.__tiles[self.__rowDimension - 1 - y][x]
+            self.__curTile = random.choice(self.__unexploredTiles)
             self.exploreTile(self.__curTile)
 
-            return Action(action, x, y)
+            return Action(action, self.__curTile.loc[0], self.__curTile.loc[1])
 
         return Action(AI.Action.LEAVE)
 
@@ -205,7 +253,7 @@ class MyAI(AI):
         if cur_x != None and cur_y != None:
             for x in range(cur_x - 1, cur_x + 2):
                 for y in range(cur_y - 1, cur_y + 2):
-                    if -1 < x < row_size and -1 < y < col_size and not (x == cur_x and y == cur_y):
+                    if -1 < x < col_size and -1 < y < row_size and not (x == cur_x and y == cur_y):
                         neighbors.append(
                             self.__tiles[self.__rowDimension - 1 - y][x])
 
@@ -239,12 +287,6 @@ class MyAI(AI):
                     mine_count += 1
 
         return mine_count == self.__totalMines
-
-    # print the board
-    def printBoard(self):
-        # ic(self.__tiles)
-        pprint(self.__tiles, width=120)
-        pass
 
     def findSafeTiles(self, tile):
 
