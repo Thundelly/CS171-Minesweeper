@@ -45,12 +45,12 @@ class Tile():
         self.flag = False
 
     # overload equation operation
-    def __eq__(self, other):
-        if (self.loc == other.loc) and (self.number == other.number):
-            return True
+    # def __eq__(self, other):
+    #     if (self.loc == other.loc) and (self.number == other.number):
+    #         return True
 
-        else:
-            return False
+    #     else:
+    #         return False
 
     # print the tile
     def __repr__(self):

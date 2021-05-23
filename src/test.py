@@ -89,25 +89,14 @@ J = Tile('J')
 K = Tile('K')
 L = Tile('L')
 
-# eq1 = Equation([A, B], 1)
-# eq2 = Equation([A, B, C], 2)
-# eq3 = Equation([B, C, D], 1)
-# eq4 = Equation([C, D, E], 2)
-# eq5 = Equation([D, E, F], 1)
-# eq6 = Equation([E, F, G], 2)
-# eq7 = Equation([F, G, H], 2)
-# eqs = [eq1, eq2, eq3, eq4, eq5, eq6, eq7]
-
-eq1 = Equation([A], 1)
-eq2 = Equation([A, B, C, D], 3)
-eq3 = Equation([C, D, E], 2)
-eq4 = Equation([D, E, F], 2)
-eq5 = Equation([E, F, G], 1)
-eq6 = Equation([F, G, H], 1)
-eq7 = Equation([G, H, I, J, K], 1)
-eq8 = Equation([L, K, J], 1)
-eq9 = Equation([K, L], 1)
-eqs = [eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8, eq9]
+eq1 = Equation([A, B], 1)
+eq2 = Equation([A, B, C], 2)
+eq3 = Equation([B, C, D], 1)
+eq4 = Equation([C, D, E], 2)
+eq5 = Equation([D, E, F], 1)
+eq6 = Equation([E, F, G], 2)
+eq7 = Equation([F, G, H], 2)
+eqs = [eq1, eq2, eq3, eq4, eq5, eq6, eq7]
 
 eqs = runCSP(eqs)
 ic(eqs)

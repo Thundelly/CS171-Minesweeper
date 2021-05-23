@@ -115,8 +115,11 @@ class MyAI(AI):
         ############### PUT CSP LOGIC IN HERE ###############
         #####################################################
 
+        eqs = list()
+
         for tile in self.__exploredTiles:
             frontier = False
+            flag_count = 0
             neighbors = self.getNeighbors(tile)
             variables = list()
             # ic(neighbors)
@@ -126,9 +129,26 @@ class MyAI(AI):
                     frontier = True
                     variables.append(neighbor)
 
+                if neighbor.getNumber() == -1:
+                    flag_count += 1
+
             if frontier and tile.getNumber() != -1:
-                ic(tile)
-                ic(variables)
+                # ic(tile)
+                # ic(variables)
+
+                eq = Equation(variables, tile.getNumber() - flag_count)
+
+                # ic(eq)
+
+                eqs.append(eq)
+
+        # ic(eqs)
+
+        eqs = self.runCSP(eqs)
+        # ic(eqs)
+
+        extracted = self.extractEqs(eqs)
+        ic(extracted)
 
         ######################################################
         ######################################################
@@ -222,13 +242,13 @@ class MyAI(AI):
         except ValueError:
             pass
 
-
     def runCSP(self, eqs):
 
         for eq1 in eqs:
             for eq2 in eqs:
 
                 eq = eq1.compare(eq2)
+                
 
                 if eq not in eqs and eq.variables:
                     eqs.append(eq)
@@ -246,7 +266,6 @@ class MyAI(AI):
                             eqs.append(eq_new)
 
         return eqs
-
 
     def extractEqs(self, eqs):
         extracted = list()
