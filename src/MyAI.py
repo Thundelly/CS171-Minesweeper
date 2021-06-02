@@ -25,13 +25,6 @@ class Tile():
         self.covered = covered
         self.flag = flag
         self.number = number
-        # Setting the tile id upon creation
-        self.loc = loc
-
-    def getLoc(self):
-        return self.loc
-    
-    def setLoc(self, loc: tuple):
         self.loc = loc
 
     def getNumber(self) -> int:
@@ -39,36 +32,10 @@ class Tile():
 
     def setNumber(self, num: int):
         self.number = num
-
-    def isMine(self) -> bool:
-        return self.mine
-    
-    def setMine(self, mine: bool):
-        self.mine = mine
-
-    def isCovered(self) -> bool:
-        return self.covered
-
-    def coverTile(self):
-        self.covered = True
     
     def uncoverTile(self):
         self.covered = False
 
-    def isFlagged(self):
-        return self.flag
-
-    def flagTile(self):
-        self.flag = True
-
-    def unflagTile(self):
-        self.flag = False
-
-    # print the tile
-    def __repr__(self):
-        # return f"{self.number}"
-        return f"{self.loc}{self.number}"
-        # return f"Mine: {self.mine}, Covered: {self.covered}, Flag: {self.flag}, Number: {self.number}, Loc: {self.loc}\n"
 
 class Equation:
     def __init__(self, variables=list(), number=0):
@@ -81,7 +48,6 @@ class Equation:
     def __eq__(self, other):
         def compare(x, y): return Counter(x) == Counter(y)
         if compare(self.variables, other.variables) and self.number == other.number:
-            # if self.variables == other.variables and self.number == other.number:
             return True
 
         else:
@@ -101,26 +67,15 @@ class Equation:
 
 class MyAI(AI):
 
-    ######################################################################
-    ################# STORE LOCATIONS OF TILES AS (X, Y) #################
-    ################# BUT INSIDE THE self.__tiles STORE  #################
-    ################# IT AS (Y, X) TO MAKE IT EASY TO    #################
-    ################# VISUALIZE                          #################
-    ######################################################################
-
     def __init__(self, rowDimension, colDimension, totalMines, startX, startY):
 
         self.__rowDimension = rowDimension
         self.__colDimension = colDimension
-        self.__tilesLeft = rowDimension * colDimension - 1
-        self.__flagsLeft = totalMines
         self.__totalMines = totalMines
         self.__exploredTiles = list()       # Already explored tiles
         self.__unexploredTiles = list()     # Not yet explored
-        self.__safeTiles = list()  # List of coordinate locations
+        self.__safeTiles = list()           # List of coordinate locations
         self.__flagTiles = list()
-        self.__mines = list()
-        self.__flaggedTiles = list()
         self.__curTile = Tile()             # Current tile of focus / X IS COLUMN / Y IS ROW
         self.__tiles = list()
 
@@ -158,6 +113,7 @@ class MyAI(AI):
         elif self.__flagTiles:
             self.__curTile = self.__flagTiles.pop()
             self.exploreTile(self.__curTile)
+            self.__curTile.flag = True
 
             return Action(AI.Action.FLAG, self.__curTile.loc[0], self.__curTile.loc[1])
 
@@ -172,6 +128,7 @@ class MyAI(AI):
 
                         self.__curTile = covered_tiles.pop()
                         self.exploreTile(self.__curTile)
+                        self.__curTile.flag = True
 
                         return Action(AI.Action.FLAG, self.__curTile.loc[0], self.__curTile.loc[1])
 
@@ -183,10 +140,6 @@ class MyAI(AI):
                             self.exploreTile(self.__curTile)
 
                             return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
-
-        #####################################################
-        ############### PUT CSP LOGIC IN HERE ###############
-        #####################################################
 
         eqs = list()
 
@@ -224,20 +177,29 @@ class MyAI(AI):
 
             return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
-        ######################################################
-        ######################################################
-        ######################################################
-
         if self.checkWinningStatus():
             return Action(AI.Action.LEAVE)
 
-        # Random move
+        # Best Guess
         if not self.__safeTiles:
-            action = AI.Action.UNCOVER
-            self.__curTile = random.choice(self.__unexploredTiles)
+            min_p = 10
+            for x in [z for z in self.__exploredTiles if z.number > 0]:
+                for t in self.getNeighbors(x):
+                    if t.covered and not t.flag:
+                        coveredNeighbors = [c for c in self.getNeighbors(x) if c.covered]
+                        if coveredNeighbors:
+                            cur_p = int(x.number)/len(coveredNeighbors)
+                            if cur_p < min_p:
+                                min_p = cur_p
+                                self.__curTile = t
             self.exploreTile(self.__curTile)
+            return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
-            return Action(action, self.__curTile.loc[0], self.__curTile.loc[1])
+        # # Random Tile
+        #     self.__curTile = random.choice(self.__unexploredTiles)
+        #     self.exploreTile(self.__curTile)
+
+        #     return Action(AI.Action.UNCOVER, self.__curTile.loc[0], self.__curTile.loc[1])
 
         return Action(AI.Action.LEAVE)
 
@@ -246,14 +208,12 @@ class MyAI(AI):
 
         cur_x = tile.loc[0]
         cur_y = tile.loc[1]
-        row_size = len(self.__tiles)
-        col_size = len(self.__tiles[0])
         neighbors = list()
 
         if cur_x != None and cur_y != None:
             for x in range(cur_x - 1, cur_x + 2):
                 for y in range(cur_y - 1, cur_y + 2):
-                    if -1 < x < col_size and -1 < y < row_size and not (x == cur_x and y == cur_y):
+                    if -1 < x < self.__colDimension and -1 < y < self.__rowDimension and not (x == cur_x and y == cur_y):
                         neighbors.append(
                             self.__tiles[self.__rowDimension - 1 - y][x])
 
